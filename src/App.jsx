@@ -39,15 +39,121 @@ function App() {
   // TODO: Add filter handler
   // Replace: filterButtons.forEach(button => button.addEventListener('click', ...))
   // With: const handleFilterClick = (category) => { ... }
+  function handleFilterClick(category) {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    // Update active button
+    filterButtons.forEach(button => {
+      button.classList.toggle(
+        'active',
+        button.dataset.filter === category
+      );
+    });
+
+    // Show or hide matching projects
+    projectCards.forEach(card => {
+      const categories = card.dataset.category.split(' ');
+
+      if (category === 'all' || categories.includes(category)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
 
   // TODO: Add form validation functions
   // You'll need: isValidEmail, showError, clearError, showSuccess
   // These can stay mostly the same!
+  // Validate email format
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 
+  // Display an error message
+  function showError(fieldId, message) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(`${fieldId}-error`);
+
+    if (input && error) {
+      input.classList.add('error');
+      error.textContent = message;
+    }
+  }
+
+  // Clear an error message
+  function clearError(fieldId) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(`${fieldId}-error`);
+
+    if (input && error) {
+      input.classList.remove('error');
+      error.textContent = '';
+    }
+  }
+
+  // Display a success message
+  function showSuccess(message) {
+    const success = document.getElementById('success-message');
+
+    if (success) {
+      success.textContent = message;
+    }
+  }
   // TODO: Add form submit handler
   // Replace: contactForm.addEventListener('submit', ...)
   // With: const handleFormSubmit = (e) => { ... }
+  // Handle contact form submission
+  function handleFormSubmit(event) {
+    event.preventDefault();
 
+    const form = event.currentTarget;
+
+    const name = form.elements.namedItem('name').value.trim();
+    const email = form.elements.namedItem('email').value.trim();
+    const message = form.elements.namedItem('message').value.trim();
+
+    let isValid = true;
+
+    // Clear previous messages
+    clearError('name');
+    clearError('email');
+    clearError('message');
+
+    const successMessage = document.getElementById('success-message');
+    if (successMessage) {
+      successMessage.textContent = '';
+    }
+
+    // Validate name
+    if (name === '') {
+      showError('name', 'Name is required');
+      isValid = false;
+    }
+
+    // Validate email
+    if (email === '') {
+      showError('email', 'Email is required');
+      isValid = false;
+    } else if (!isValidEmail(email)) {
+      showError('email', 'Please enter a valid email address');
+      isValid = false;
+    }
+
+    // Validate message
+    if (message === '') {
+      showError('message', 'Message is required');
+      isValid = false;
+    }
+
+    // Show success message
+    if (isValid) {
+      showSuccess('Message submitted successfully!');
+      form.reset();
+    }
+  }
 
   // ============================================
   // PART 2: JSX RETURN STATEMENT
@@ -261,16 +367,39 @@ function App() {
 
           {/* Filter Buttons */}
           <div className="filter-buttons">
-            <button type="button" className="filter-btn active" data-filter="all">
+            <button
+              type="button"
+              className="filter-btn active"
+              data-filter="all"
+              onClick={() => handleFilterClick('all')}
+            >
               All Projects
             </button>
-            <button type="button" className="filter-btn" data-filter="research">
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="research"
+              onClick={() => handleFilterClick('research')}
+            >
               Research
             </button>
-            <button type="button" className="filter-btn" data-filter="healthtech">
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="healthtech"
+              onClick={() => handleFilterClick('healthtech')}
+            >
               Health Tech
             </button>
-            <button type="button" className="filter-btn" data-filter="simulation">
+
+            <button
+              type="button"
+              className="filter-btn"
+              data-filter="simulation"
+              onClick={() => handleFilterClick('simulation')}
+            >
               Simulation
             </button>
           </div>
@@ -446,7 +575,12 @@ function App() {
               Feel free to reach out!
             </p>
 
-            <form id="contact-form" className="contact-form">
+            <form
+              id="contact-form"
+              className="contact-form"
+              onSubmit={handleFormSubmit}
+              noValidate
+            >
               <div className="form-grid">
 
                 {/* Name */}
